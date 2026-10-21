@@ -1,1 +1,1172 @@
-高投诉产品跟进
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>高销量产品利润跟进 · 需求原型 · CSM-9984</title>
+  <style>
+    :root {
+      --bg: #f0f2f5;
+      --panel: #fff;
+      --border: #e5e6eb;
+      --border-strong: #c9cdd4;
+      --text: #1d2129;
+      --text-2: #4e5969;
+      --text-3: #86909c;
+      --primary: #165dff;
+      --primary-hover: #0e42d2;
+      --primary-soft: #e8f3ff;
+      --success: #00b42a;
+      --success-soft: #e8ffea;
+      --danger: #f53f3f;
+      --danger-soft: #ffece8;
+      --warn: #ff7d00;
+      --header: #1a2332;
+      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
+      --radius: 6px;
+      --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .app-header {
+      background: var(--header);
+      color: #fff;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 16px;
+    }
+    .app-header .logo { font-weight: 600; font-size: 15px; letter-spacing: .02em; }
+    .app-header .crumb { color: rgba(255,255,255,.55); font-size: 12px; }
+    .app-header .crumb b { color: #fff; font-weight: 500; }
+    .app-header .badge {
+      margin-left: auto;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+    }
+    .layout { padding: 16px 20px 40px; max-width: 100%; }
+    .page-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .page-title h1 { font-size: 18px; font-weight: 600; }
+    .page-title .meta { color: var(--text-3); font-size: 12px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+    }
+    .filter-panel { padding: 14px 16px; background: #f7f8fa; }
+    .filter-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .field { display: contents; }
+    .field label { display: none; }
+    .filter-grid > select,
+    .filter-grid > input,
+    .date-row select,
+    .date-row input {
+      height: 32px;
+      border: 1px solid #d9dce2;
+      border-radius: 4px;
+      padding: 0 28px 0 12px;
+      font-size: 13px;
+      color: #86909c;
+      background: #fff;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .filter-grid > select,
+    .date-row select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2386909c' d='M3 4.5L6 8l3-3.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+    }
+    .filter-grid > select:not([data-empty="1"]),
+    .date-row select:not([data-empty="1"]),
+    .filter-grid > input:not(:placeholder-shown),
+    .date-row input[type="date"] {
+      color: #1d2129;
+    }
+    .filter-grid > input::placeholder { color: #86909c; }
+    .filter-grid > select:focus,
+    .filter-grid > input:focus,
+    .date-row select:focus,
+    .date-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(22,93,255,.12);
+      color: #1d2129;
+    }
+    #fPlatform { width: 120px; }
+    #fDept { width: 130px; }
+    #fHot { width: 110px; }
+    #fProfit { width: 140px; }
+    #fKeyword { width: 180px; padding-right: 12px; }
+    #fDateType { width: 110px; }
+    .date-row {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .date-row input[type="date"] { width: 136px; padding-right: 8px; }
+    .date-row .sep { color: #86909c; flex-shrink: 0; font-size: 13px; }
+    .filter-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 2px;
+    }
+    .btn {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: 4px;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-hover); color: #fff; }
+    .btn-ghost { background: transparent; }
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .toolbar .left { display: flex; gap: 8px; align-items: center; }
+    .toolbar .hint { color: var(--text-3); font-size: 12px; }
+    .table-wrap { overflow: auto; max-height: calc(100vh - 320px); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 2200px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f7f8fa;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-2);
+      white-space: nowrap;
+      font-size: 12px;
+    }
+    tbody td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    tbody tr:hover { background: #fafbfc; }
+    .sku { color: var(--text); font-weight: 500; }
+    .prod-info {
+      white-space: normal;
+      min-width: 220px;
+      max-width: 280px;
+      line-height: 1.7;
+      font-size: 12px;
+    }
+    .prod-info .row {
+      display: flex;
+      gap: 4px;
+      align-items: flex-start;
+    }
+    .prod-info .lbl {
+      color: var(--text-3);
+      flex-shrink: 0;
+      min-width: 72px;
+    }
+    .prod-info .val {
+      color: var(--text);
+      word-break: break-all;
+    }
+    .pos { color: var(--success); font-weight: 600; }
+    .neg { color: var(--danger); font-weight: 600; }
+    .link { color: var(--primary); cursor: pointer; }
+    .link:hover { text-decoration: underline; }
+    .trend-chart-wrap {
+      width: 100%;
+      height: 480px;
+      position: relative;
+    }
+    .modal.trend-wide { width: min(1100px, 100%); }
+    .num { font-variant-numeric: tabular-nums; text-align: right; }
+    th.num, td.num { text-align: right; }
+    .empty { color: var(--text-3); }
+    .pager {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 10px 16px;
+      color: var(--text-2);
+    }
+    .pager .btn { min-width: 32px; padding: 0 8px; }
+    .pager .btn.active {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Modal */
+    .mask {
+      position: fixed; inset: 0;
+      background: rgba(29,33,41,.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 24px;
+    }
+    .mask.show { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      width: min(960px, 100%);
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    }
+    .modal.wide { width: min(1100px, 100%); }
+    .modal-hd {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-hd h3 { font-size: 15px; font-weight: 600; }
+    .modal-bd { padding: 16px 18px; overflow: auto; }
+    .modal-ft {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .close-x {
+      width: 28px; height: 28px;
+      border: none; background: transparent;
+      cursor: pointer; font-size: 18px; color: var(--text-3);
+      border-radius: 4px;
+    }
+    .close-x:hover { background: #f2f3f5; color: var(--text); }
+
+    .hist-table { min-width: 1600px; width: 100%; }
+    .hist-table.compact { min-width: 0; }
+    .hist-table thead th { position: static; }
+    .hist-scroll { overflow: auto; }
+    .detail-section { margin-bottom: 20px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .detail-section .sec-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      padding-left: 8px;
+      border-left: 3px solid var(--primary);
+      color: var(--text);
+    }
+    .detail-section .sec-desc {
+      margin: -4px 0 10px;
+      color: var(--text-3);
+      font-size: 12px;
+    }
+    .stat-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      background: #fafbfc;
+    }
+    .stat-card .k { color: var(--text-3); font-size: 12px; }
+    .stat-card .v { font-size: 20px; font-weight: 600; margin-top: 4px; }
+    .toast {
+      position: fixed;
+      top: 64px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      background: #1d2129;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s;
+      z-index: 200;
+      font-size: 13px;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .proto-note {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #fff7e8;
+      border: 1px solid #ffe4ba;
+      border-radius: var(--radius);
+      color: #ad6800;
+      font-size: 12px;
+    }
+    @media (max-width: 1100px) {
+      .stat-summary { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">CRM</div>
+    <div class="crumb">数据中心 / 统计报表 / <b>高销量产品利润跟进</b></div>
+    <div class="badge">CSM-9984 · 权限 A 级</div>
+  </header>
+
+  <main class="layout">
+    <div class="page-title">
+      <h1>高销量产品利润跟进</h1>
+      <div class="meta">默认：小包 · 已发货 · Top 10000 · 更新后仅展示最新，历史可点开查看</div>
+    </div>
+
+    <section class="panel filter-panel">
+      <div class="filter-grid">
+        <select id="fPlatform" title="平台（必选）">
+          <option value="all" selected>所有平台</option>
+          <option>Amazon</option>
+          <option>eBay</option>
+          <option>Shopify</option>
+          <option>Wish</option>
+          <option>独立站</option>
+        </select>
+        <select id="fDept" data-empty="1" title="采购员部门">
+          <option value="" selected>采购员部门</option>
+          <option>采购一组</option>
+          <option>采购二组</option>
+          <option>采购三组</option>
+        </select>
+        <select id="fHot" data-empty="1" title="是否爆款">
+          <option value="" selected>是否爆款</option>
+          <option value="1">是</option>
+          <option value="0">否</option>
+        </select>
+        <select id="fProfit" data-empty="1" title="最新利润情况（减退款）">
+          <option value="" selected>最新利润情况</option>
+          <option value="pos">正</option>
+          <option value="neg">负</option>
+        </select>
+        <div class="date-row">
+          <select id="fDateType" title="日期类型">
+            <option value="add">添加日期</option>
+            <option value="upd">更新日期</option>
+            <option value="hotm">高销量月份</option>
+          </select>
+          <input type="date" id="fDateFrom" value="2026-09-01" />
+          <span class="sep">至</span>
+          <input type="date" id="fDateTo" value="2026-10-16" />
+        </div>
+        <input id="fKeyword" placeholder="产品编号(前模糊)" title="产品编号" />
+        <div class="filter-actions">
+          <button class="btn btn-primary" onclick="doSearch()">查询</button>
+          <button class="btn" onclick="resetFilter()">重置</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div class="left">
+          <button class="btn btn-primary" onclick="toast('已按当前列表条件导出（原型）')">导出</button>
+          <button class="btn" onclick="openStat()">统计功能</button>
+          <span class="hint">共 <b id="totalCount">6</b> 条 · 展示最新快照</span>
+        </div>
+        <div class="hint">销量/利润仅前 4 次更新 · 退款与产品信息每次更新</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>产品编号</th>
+              <th>产品信息</th>
+              <th>高销量月份</th>
+              <th>最新利润情况</th>
+              <th>利润趋势图</th>
+              <th class="num">当月销量</th>
+              <th class="num">次月销量</th>
+              <th class="num">第三月销量</th>
+              <th class="num">当月销售额</th>
+              <th class="num">次月销售额</th>
+              <th class="num">第三月销售额</th>
+              <th class="num">销售总额</th>
+              <th class="num">当月利润</th>
+              <th class="num">次月利润</th>
+              <th class="num">第三月利润</th>
+              <th class="num">利润总额</th>
+              <th class="num">总利润率</th>
+              <th class="num">当月退款数</th>
+              <th class="num">次月退款数</th>
+              <th class="num">第三月退款数</th>
+              <th class="num">当月退款额</th>
+              <th class="num">次月退款额</th>
+              <th class="num">第三月退款额</th>
+              <th class="num">退款总额</th>
+              <th class="num">总退款率</th>
+              <th>退款原因</th>
+              <th>添加日期</th>
+              <th>更新日期</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span>每页 20 条</span>
+        <button class="btn active">1</button>
+        <button class="btn">2</button>
+        <button class="btn">下一页</button>
+      </div>
+    </section>
+
+    <div class="proto-note">
+      原型说明（CSM-9984）：功能位置 CRM → 数据中心 → 统计报表。列表默认小包已发货 Top10000；产品编号无超链接；点「最新利润情况」的「查看」可在同一页查看最新明细与历史快照；「统计功能」展示连续高销量产品利润（减退款）。本页为交互示意，非最终 UI。
+    </div>
+  </main>
+
+  <!-- 最新明细 + 历史快照（整合） -->
+  <div class="mask" id="detailMask">
+    <div class="modal trend-wide">
+      <div class="modal-hd">
+        <h3 id="detailTitle">利润明细与历史</h3>
+        <button class="close-x" onclick="closeModal('detailMask')">×</button>
+      </div>
+      <div class="modal-bd" id="detailBody"></div>
+      <div class="modal-ft">
+        <button class="btn" onclick="closeModal('detailMask')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 利润趋势图 -->
+  <div class="mask" id="trendMask">
+    <div class="modal trend-wide">
+      <div class="modal-hd">
+        <h3 id="trendTitle">利润趋势图</h3>
+        <button class="close-x" onclick="closeModal('trendMask')">×</button>
+      </div>
+      <div class="modal-bd" id="trendBody"></div>
+      <div class="modal-ft">
+        <button class="btn" onclick="closeModal('trendMask')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 统计 -->
+  <div class="mask" id="statMask">
+    <div class="modal wide">
+      <div class="modal-hd">
+        <h3>连续高销量产品统计（近 12 个月）</h3>
+        <button class="close-x" onclick="closeModal('statMask')">×</button>
+      </div>
+      <div class="modal-bd">
+        <div class="stat-summary">
+          <div class="stat-card"><div class="k">连续添加 ≥2 次产品数</div><div class="v">128</div></div>
+          <div class="stat-card"><div class="k">整体利润（减退款）</div><div class="v pos">+ ¥ 1,286,430</div></div>
+          <div class="stat-card"><div class="k">整体判断</div><div class="v pos">正</div></div>
+        </div>
+        <p style="margin-bottom:10px;color:var(--text-2);font-size:12px;">规则：12 个月内添加次数 ≥2 且连续添加；按整月合并利润（减退款）明细。</p>
+        <table class="hist-table">
+          <thead>
+            <tr>
+              <th>产品编号</th>
+              <th>产品名称</th>
+              <th class="num">添加次数</th>
+              <th>连续区间</th>
+              <th class="num">近12月利润(减退款)</th>
+              <th>整体</th>
+              <th>月度明细</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="sku">AAAAAA</td>
+              <td>无线蓝牙耳机 Pro</td>
+              <td class="num">3</td>
+              <td>2025-10 → 2026-01 → 2026-04</td>
+              <td class="num pos">+86,420</td>
+              <td><span class="pos">正</span></td>
+              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+            </tr>
+            <tr>
+              <td class="sku">I500807233</td>
+              <td>多功能厨房收纳架</td>
+              <td class="num">2</td>
+              <td>2026-07 → 2026-10</td>
+              <td class="num neg">-12,350</td>
+              <td><span class="neg">负</span></td>
+              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+            </tr>
+            <tr>
+              <td class="sku">B778812</td>
+              <td>宠物自动喂食器</td>
+              <td class="num">4</td>
+              <td>2025-11 → … → 2026-08</td>
+              <td class="num pos">+152,880</td>
+              <td><span class="pos">正</span></td>
+              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-ft">
+        <button class="btn" onclick="toast('已导出统计结果（原型）')">导出统计</button>
+        <button class="btn btn-primary" onclick="closeModal('statMask')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+  <script>
+    const rows = [
+      {
+        sku: "AAAAAA",
+        name: "无线蓝牙耳机 Pro",
+        cate: "耳机",
+        bigCate: "3C数码",
+        status: "在售", hot: true,
+        buyer: "李敏", dept: "采购一组",
+        hotMonth: "2026-09",
+        profitNet: 42860,
+        spark: [18600, 22100, 26800, 31200, 35600, 42860],
+        sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
+        qty: [3200, 2850, 2100],
+        sales: [186000, 162400, 118800],
+        profit: [28600, 22100, 12500],
+        refundQty: [86, 72, 41],
+        refundAmt: [9800, 7600, 3840],
+        reasons: ["质量问题×42", "描述不符×28", "物流延误×16"],
+        addDate: "2026-10-01", updDate: "2026-10-16"
+      },
+      {
+        sku: "I500807233",
+        name: "多功能厨房收纳架",
+        cate: "收纳",
+        bigCate: "家居",
+        status: "在售", hot: true,
+        buyer: "王强", dept: "采购二组",
+        hotMonth: "2026-09",
+        profitNet: -8320,
+        spark: [5200, 2100, -800, -3200, -6100, -8320],
+        sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
+        qty: [4100, 3600, null],
+        sales: [205000, 178200, null],
+        profit: [15200, 6800, null],
+        refundQty: [210, 188, null],
+        refundAmt: [18600, 11720, null],
+        reasons: ["尺寸不符×98", "破损×61", "退货无理由×41"],
+        addDate: "2026-10-01", updDate: "2026-10-16"
+      },
+      {
+        sku: "B778812",
+        name: "宠物自动喂食器",
+        cate: "智能设备",
+        bigCate: "宠物",
+        status: "在售", hot: false,
+        buyer: "赵丽", dept: "采购一组",
+        hotMonth: "2026-09",
+        profitNet: 61240,
+        spark: [18600, 26800, 35200, 44800, 53600, 61240],
+        sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
+        qty: [2800, 3100, 2950],
+        sales: [224000, 248000, 236000],
+        profit: [31200, 34800, 29600],
+        refundQty: [35, 40, 28],
+        refundAmt: [5200, 6100, 4160],
+        reasons: ["误购×18", "配件缺失×12", "噪音大×9"],
+        addDate: "2026-10-01", updDate: "2026-11-01"
+      },
+      {
+        sku: "C991002",
+        name: "户外折叠露营椅",
+        cate: "露营",
+        bigCate: "户外",
+        status: "停售", hot: false,
+        buyer: "陈峰", dept: "采购三组",
+        hotMonth: "2026-08",
+        profitNet: 15680,
+        spark: [9800, 11200, 12800, 14100, 15000, 15680],
+        sparkLabels: ["09/01", "09/16", "10/01", "10/16", "11/01", "12/01"],
+        qty: [1900, 1200, 800],
+        sales: [95000, 60000, 40000],
+        profit: [12000, 5800, 2100],
+        refundQty: [22, 18, 12],
+        refundAmt: [2100, 1500, 620],
+        reasons: ["承重不足×14", "色差×8", "包装破损×6"],
+        addDate: "2026-09-01", updDate: "2026-12-01"
+      },
+      {
+        sku: "D112233",
+        name: "便携式榨汁杯",
+        cate: "小家电",
+        bigCate: "家电",
+        status: "在售", hot: true,
+        buyer: "李敏", dept: "采购一组",
+        hotMonth: "2026-09",
+        profitNet: 0,
+        spark: [1800, 1200, 600, 200, 50, 0],
+        sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
+        qty: [1500, 0, null],
+        sales: [45000, 0, null],
+        profit: [3200, 0, null],
+        refundQty: [45, 0, null],
+        refundAmt: [3200, 0, null],
+        reasons: ["漏水×22", "电池续航×15", "异味×8"],
+        addDate: "2026-10-01", updDate: "2026-10-16"
+      },
+      {
+        sku: "E445566",
+        name: "儿童益智积木套装",
+        cate: "益智",
+        bigCate: "玩具",
+        status: "在售", hot: false,
+        buyer: "周杰", dept: "采购二组",
+        hotMonth: "2026-09",
+        profitNet: 23890,
+        spark: [6200, 9800, 13600, 17800, 21000, 23890],
+        sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
+        qty: [2600, 2400, null],
+        sales: [130000, 120000, null],
+        profit: [18500, 16200, null],
+        refundQty: [58, 40, null],
+        refundAmt: [6200, 4610, null],
+        reasons: ["缺件×30", "年龄不符×18", "掉色×10"],
+        addDate: "2026-10-01", updDate: "2026-10-16"
+      }
+    ];
+
+    const fmt = (n, emptyAsDash = true) => {
+      if (n === null || n === undefined) return emptyAsDash ? '<span class="empty">—</span>' : "";
+      return Number(n).toLocaleString("zh-CN");
+    };
+    const fmtMoney = (n) => {
+      if (n === null || n === undefined) return '<span class="empty">—</span>';
+      return "¥ " + Number(n).toLocaleString("zh-CN");
+    };
+    const rate = (a, b) => {
+      if (a === null || b === null || b === 0) {
+        const knownP = a, knownS = b;
+        if (knownS === 0 && knownP === 0) return "0.00%";
+        if (!knownS) return '<span class="empty">—</span>';
+      }
+      const sales = [a].length; // placeholder
+      return ((a / b) * 100).toFixed(2) + "%";
+    };
+    const sum3 = (arr) => {
+      const known = arr.filter(v => v !== null && v !== undefined);
+      if (!known.length) return null;
+      return known.reduce((s, v) => s + v, 0);
+    };
+    const profitCls = (n) => n > 0 ? "pos" : n < 0 ? "neg" : "";
+    const profitText = (n) => n > 0 ? "正" : n < 0 ? "负" : "平";
+
+    // 近1年利润趋势示例数据（参考图样式：柱=利润金额，线=利润率）
+    const trendMonths = ["2508","2509","2510","2511","2512","2601","2602","2603","2604","2605","2606","2607","2608"];
+    const trendBySku = {
+      I500807233: {
+        profitNoRefund: [0.48, 0.56, 0.41, 0.46, 0.47, 0.59, 0.48, 0.76, 3.09, 2.93, 2.95, 3.39, 2.71],
+        profitRefund:   [0.3, -1.2, -0.8, -0.6, -0.5, -0.1, -0.3, -0.3, -0.1, -14.5, 1.7, 2.8, 2.1],
+        rateNoRefund:   [13.6, 11.3, 9.5, 11.0, 10.8, 13.2, 11.6, 12.6, 16.1, 16.8, 16.9, 17.9, 16.1],
+        rateRefund:     [8.8, -20.3, -16.2, -12.5, -10.3, -2.0, -6.5, -4.1, -0.5, -65.4, 9.2, 14.4, 11.6]
+      },
+      AAAAAA: {
+        profitNoRefund: [1.2, 1.4, 1.5, 1.6, 1.8, 2.0, 2.1, 2.3, 2.5, 2.6, 2.8, 3.0, 3.1],
+        profitRefund:   [0.9, 1.0, 0.8, 1.1, 1.2, 1.4, 1.3, 1.6, 1.8, 1.5, 2.0, 2.2, 2.4],
+        rateNoRefund:   [14.2, 13.8, 13.1, 13.5, 14.0, 14.6, 14.1, 14.8, 15.2, 15.0, 15.6, 16.0, 15.8],
+        rateRefund:     [10.5, 9.8, 7.2, 9.1, 9.6, 10.2, 8.8, 10.4, 11.0, 8.6, 11.2, 11.8, 12.1]
+      }
+    };
+    function getTrendData(sku) {
+      if (trendBySku[sku]) return trendBySku[sku];
+      // 其他 SKU 用稳定正向示例
+      return {
+        profitNoRefund: [0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.5, 1.6, 1.7, 1.8, 1.9],
+        profitRefund:   [0.4, 0.3, 0.5, 0.4, 0.6, 0.7, 0.5, 0.8, 0.9, 0.7, 1.0, 1.1, 1.2],
+        rateNoRefund:   [12.0, 11.5, 12.2, 12.8, 13.0, 13.5, 13.1, 13.8, 14.2, 14.0, 14.5, 15.0, 14.8],
+        rateRefund:     [8.0, 5.5, 7.8, 6.2, 8.1, 8.8, 6.5, 9.0, 9.5, 7.2, 10.0, 10.5, 10.8]
+      };
+    }
+
+    let trendChart = null;
+    function renderTrendChart(sku) {
+      const d = getTrendData(sku);
+      const el = document.getElementById("trendChartEl");
+      if (!el) return;
+      if (typeof echarts === "undefined") {
+        el.innerHTML = '<div style="padding:40px;text-align:center;color:#86909c">图表库加载失败，请检查网络后刷新</div>';
+        return;
+      }
+      if (trendChart) {
+        trendChart.dispose();
+        trendChart = null;
+      }
+      trendChart = echarts.init(el);
+      const pink = "#f4a6b8";
+      const blue = "#5b8ff9";
+      trendChart.setOption({
+        title: {
+          text: "近1年利润趋势",
+          left: "center",
+          top: 4,
+          textStyle: { fontSize: 15, fontWeight: 600, color: "#1d2129" }
+        },
+        legend: {
+          bottom: 4,
+          itemWidth: 14,
+          itemHeight: 10,
+          textStyle: { fontSize: 12, color: "#4e5969" },
+          data: [
+            { name: "利润（不减退款）", icon: "rect" },
+            { name: "利润（减退款）", icon: "rect" },
+            { name: "利润率（不减退款）", icon: "circle" },
+            { name: "利润率（减还原退款）", icon: "rect" }
+          ]
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: { type: "shadow" },
+          formatter(params) {
+            let html = `<div style="font-weight:600;margin-bottom:4px">${params[0].axisValue}</div>`;
+            params.forEach(p => {
+              const unit = p.seriesName.includes("率") ? "%" : "";
+              html += `${p.marker}${p.seriesName}：<b>${p.value}${unit}</b><br/>`;
+            });
+            return html;
+          }
+        },
+        grid: { left: 48, right: 24, top: 56, bottom: 56, containLabel: true },
+        xAxis: {
+          type: "category",
+          data: trendMonths,
+          axisTick: { alignWithLabel: true },
+          axisLine: { lineStyle: { color: "#c9cdd4" } },
+          axisLabel: { color: "#4e5969", fontSize: 12 }
+        },
+        yAxis: [
+          {
+            type: "value",
+            splitLine: { show: false },
+            axisLabel: { show: false },
+            axisLine: { show: false },
+            axisTick: { show: false }
+          },
+          {
+            type: "value",
+            splitLine: { show: false },
+            axisLabel: { show: false },
+            axisLine: { show: false },
+            axisTick: { show: false }
+          }
+        ],
+        series: [
+          {
+            name: "利润（不减退款）",
+            type: "bar",
+            barGap: "20%",
+            barWidth: 14,
+            itemStyle: { color: pink },
+            label: {
+              show: true,
+              position: "top",
+              color: "#1d2129",
+              fontSize: 11,
+              formatter: ({ value }) => value
+            },
+            data: d.profitNoRefund
+          },
+          {
+            name: "利润（减退款）",
+            type: "bar",
+            barWidth: 14,
+            itemStyle: { color: blue },
+            label: {
+              show: true,
+              position: "top",
+              color: "#1d2129",
+              fontSize: 11,
+              formatter: ({ value }) => {
+                // 负值标在柱下方
+                return value;
+              }
+            },
+            data: d.profitRefund.map(v => ({
+              value: v,
+              label: { position: v < 0 ? "bottom" : "top" }
+            }))
+          },
+          {
+            name: "利润率（不减退款）",
+            type: "line",
+            yAxisIndex: 1,
+            symbol: "circle",
+            symbolSize: 8,
+            itemStyle: { color: pink },
+            lineStyle: { color: pink, width: 2 },
+            label: {
+              show: true,
+              position: "top",
+              color: pink,
+              fontSize: 11,
+              formatter: ({ value }) => value + "%"
+            },
+            data: d.rateNoRefund
+          },
+          {
+            name: "利润率（减还原退款）",
+            type: "line",
+            yAxisIndex: 1,
+            symbol: "rect",
+            symbolSize: 8,
+            itemStyle: { color: blue },
+            lineStyle: { color: blue, width: 2 },
+            label: {
+              show: true,
+              position: "bottom",
+              color: blue,
+              fontSize: 11,
+              backgroundColor: "rgba(91,143,249,0.12)",
+              borderColor: blue,
+              borderWidth: 1,
+              borderRadius: 2,
+              padding: [2, 4],
+              formatter: ({ value }) => value + "%"
+            },
+            data: d.rateRefund
+          }
+        ]
+      });
+      setTimeout(() => trendChart && trendChart.resize(), 50);
+    }
+
+    function render() {
+      const platform = document.getElementById("fPlatform").value;
+      const dept = document.getElementById("fDept").value;
+      const hot = document.getElementById("fHot").value;
+      const profit = document.getElementById("fProfit").value;
+      const kw = document.getElementById("fKeyword").value.trim().toLowerCase();
+
+      let list = rows.filter(r => {
+        if (dept && r.dept !== dept) return false;
+        if (hot === "1" && !r.hot) return false;
+        if (hot === "0" && r.hot) return false;
+        if (profit === "pos" && r.profitNet <= 0) return false;
+        if (profit === "neg" && r.profitNet >= 0) return false;
+        if (kw && !r.sku.toLowerCase().startsWith(kw)) return false;
+        return true;
+      });
+
+      document.getElementById("totalCount").textContent = list.length;
+      const tb = document.getElementById("tbody");
+      tb.innerHTML = list.map(r => {
+        const salesTotal = sum3(r.sales);
+        const profitTotal = sum3(r.profit);
+        const refundTotal = sum3(r.refundAmt);
+        const profitRate = salesTotal ? ((profitTotal / salesTotal) * 100).toFixed(2) + "%" : "—";
+        const refundRate = salesTotal ? ((refundTotal / salesTotal) * 100).toFixed(2) + "%" : "—";
+        return `<tr>
+          <td><span class="sku">${r.sku}</span></td>
+          <td>
+            <div class="prod-info">
+              <div class="row"><span class="lbl">产品名称：</span><span class="val">${r.name}</span></div>
+              <div class="row"><span class="lbl">产品分类：</span><span class="val">${r.cate}</span></div>
+              <div class="row"><span class="lbl">产品大分类：</span><span class="val">${r.bigCate}</span></div>
+              <div class="row"><span class="lbl">产品状态：</span><span class="val">${r.status}</span></div>
+              <div class="row"><span class="lbl">是否爆款：</span><span class="val">${r.hot ? "是" : "否"}</span></div>
+              <div class="row"><span class="lbl">采购员：</span><span class="val">${r.buyer}</span></div>
+              <div class="row"><span class="lbl">采购员部门：</span><span class="val">${r.dept}</span></div>
+            </div>
+          </td>
+          <td>${r.hotMonth}</td>
+          <td>
+            <span class="${profitCls(r.profitNet)}">${profitText(r.profitNet)}</span>
+            <div style="margin-top:2px"><span class="link" onclick="openDetail('${r.sku}')">查看</span></div>
+          </td>
+          <td><span class="link" onclick="openTrend('${r.sku}')">查看</span></td>
+          <td class="num">${fmt(r.qty[0])}</td>
+          <td class="num">${fmt(r.qty[1])}</td>
+          <td class="num">${fmt(r.qty[2])}</td>
+          <td class="num">${fmtMoney(r.sales[0])}</td>
+          <td class="num">${fmtMoney(r.sales[1])}</td>
+          <td class="num">${fmtMoney(r.sales[2])}</td>
+          <td class="num"><b>${fmtMoney(salesTotal)}</b></td>
+          <td class="num">${fmtMoney(r.profit[0])}</td>
+          <td class="num">${fmtMoney(r.profit[1])}</td>
+          <td class="num">${fmtMoney(r.profit[2])}</td>
+          <td class="num"><b>${fmtMoney(profitTotal)}</b></td>
+          <td class="num">${profitRate}</td>
+          <td class="num">${fmt(r.refundQty[0])}</td>
+          <td class="num">${fmt(r.refundQty[1])}</td>
+          <td class="num">${fmt(r.refundQty[2])}</td>
+          <td class="num">${fmtMoney(r.refundAmt[0])}</td>
+          <td class="num">${fmtMoney(r.refundAmt[1])}</td>
+          <td class="num">${fmtMoney(r.refundAmt[2])}</td>
+          <td class="num"><b>${fmtMoney(refundTotal)}</b></td>
+          <td class="num">${refundRate}</td>
+          <td style="white-space:normal;min-width:160px;max-width:200px;">${r.reasons.join("<br>")}</td>
+          <td>${r.addDate}</td>
+          <td>${r.updDate}</td>
+        </tr>`;
+      }).join("");
+      if (!list.length) {
+        tb.innerHTML = `<tr><td colspan="28" style="text-align:center;padding:40px;color:var(--text-3)">暂无数据</td></tr>`;
+      }
+      // platform note for prototype
+      void platform;
+    }
+
+    function histRow(cells, opts = {}) {
+      const { bold, current } = opts;
+      const wrap = (v, cls = "") => {
+        const t = v == null || v === "" ? "—" : v;
+        return `<td class="num ${cls}">${bold ? `<b>${t}</b>` : t}</td>`;
+      };
+      const style = current ? ' style="background:#f7f8fa"' : "";
+      return `<tr${style}>
+        <td>${bold ? `<b>${cells.date}</b>` : cells.date}</td>
+        <td>${bold ? `<b>${cells.node}</b>` : cells.node}</td>
+        ${wrap(cells.qty0)}${wrap(cells.qty1)}${wrap(cells.qty2)}
+        ${wrap(cells.sales0)}${wrap(cells.sales1)}${wrap(cells.sales2)}${wrap(cells.salesTotal)}
+        ${wrap(cells.profit0)}${wrap(cells.profit1)}${wrap(cells.profit2)}${wrap(cells.profitTotal)}
+        ${wrap(cells.profitRate)}
+        ${wrap(cells.rq0)}${wrap(cells.rq1)}${wrap(cells.rq2)}
+        ${wrap(cells.ra0)}${wrap(cells.ra1)}${wrap(cells.ra2)}${wrap(cells.refundTotal)}
+        ${wrap(cells.refundRate)}
+        ${wrap(cells.profitNet, cells.profitNetCls || "")}
+      </tr>`;
+    }
+
+    function openDetail(sku) {
+      const r = rows.find(x => x.sku === sku);
+      const salesTotal = sum3(r.sales);
+      const profitTotal = sum3(r.profit);
+      const refundTotal = sum3(r.refundAmt);
+      const dash = "—";
+      const profitRate = salesTotal ? ((profitTotal / salesTotal) * 100).toFixed(2) + "%" : dash;
+      const refundRate = salesTotal ? ((refundTotal / salesTotal) * 100).toFixed(2) + "%" : dash;
+      document.getElementById("detailTitle").textContent = `利润明细与历史 · ${sku} ${r.name}`;
+
+      const histHtml = [
+        histRow({
+          date: "2026-10-01", node: "添加",
+          qty0: "3,200", qty1: dash, qty2: dash,
+          sales0: "186,000", sales1: dash, sales2: dash, salesTotal: "186,000",
+          profit0: "28,600", profit1: dash, profit2: dash, profitTotal: "28,600",
+          profitRate: "15.38%",
+          rq0: "86", rq1: dash, rq2: dash,
+          ra0: "9,800", ra1: dash, ra2: dash, refundTotal: "9,800",
+          refundRate: "5.27%",
+          profitNet: "+18,800", profitNetCls: "pos"
+        }),
+        histRow({
+          date: "2026-10-16", node: "第2次更新",
+          qty0: "3,200", qty1: "2,850", qty2: dash,
+          sales0: "186,000", sales1: "162,400", sales2: dash, salesTotal: "348,400",
+          profit0: "28,600", profit1: "22,100", profit2: dash, profitTotal: "50,700",
+          profitRate: "14.55%",
+          rq0: "86", rq1: "72", rq2: dash,
+          ra0: "9,800", ra1: "7,600", ra2: dash, refundTotal: "17,400",
+          refundRate: "4.99%",
+          profitNet: "+33,300", profitNetCls: "pos"
+        }),
+        histRow({
+          date: "2026-11-01", node: "第3次更新",
+          qty0: "3,200", qty1: "2,850", qty2: "2,100",
+          sales0: "186,000", sales1: "162,400", sales2: "118,800", salesTotal: "467,200",
+          profit0: "28,600", profit1: "22,100", profit2: "12,500", profitTotal: "63,200",
+          profitRate: "13.53%",
+          rq0: "86", rq1: "72", rq2: "41",
+          ra0: "9,800", ra1: "7,600", ra2: "3,840", refundTotal: "21,240",
+          refundRate: "4.55%",
+          profitNet: "+41,960", profitNetCls: "pos"
+        }),
+        histRow({
+          date: r.updDate, node: "当前展示",
+          qty0: fmt(r.qty[0], false),
+          qty1: r.qty[1] == null ? dash : fmt(r.qty[1], false),
+          qty2: r.qty[2] == null ? dash : fmt(r.qty[2], false),
+          sales0: fmt(r.sales[0], false),
+          sales1: r.sales[1] == null ? dash : fmt(r.sales[1], false),
+          sales2: r.sales[2] == null ? dash : fmt(r.sales[2], false),
+          salesTotal: fmt(salesTotal, false),
+          profit0: fmt(r.profit[0], false),
+          profit1: r.profit[1] == null ? dash : fmt(r.profit[1], false),
+          profit2: r.profit[2] == null ? dash : fmt(r.profit[2], false),
+          profitTotal: fmt(profitTotal, false),
+          profitRate,
+          rq0: fmt(r.refundQty[0], false),
+          rq1: r.refundQty[1] == null ? dash : fmt(r.refundQty[1], false),
+          rq2: r.refundQty[2] == null ? dash : fmt(r.refundQty[2], false),
+          ra0: fmt(r.refundAmt[0], false),
+          ra1: r.refundAmt[1] == null ? dash : fmt(r.refundAmt[1], false),
+          ra2: r.refundAmt[2] == null ? dash : fmt(r.refundAmt[2], false),
+          refundTotal: fmt(refundTotal, false),
+          refundRate,
+          profitNet: (r.profitNet > 0 ? "+" : "") + fmt(r.profitNet, false),
+          profitNetCls: profitCls(r.profitNet)
+        }, { bold: true, current: true })
+      ].join("");
+
+      document.getElementById("detailBody").innerHTML = `
+        <div class="detail-section">
+          <div class="sec-title">最新利润明细</div>
+          <div class="sec-desc">按当月 / 次月 / 第三月展示当前最新数据；未到月份为空，合计仅按已知月份计算。</div>
+          <div class="stat-summary">
+            <div class="stat-card"><div class="k">利润总额</div><div class="v">¥ ${fmt(profitTotal, false)}</div></div>
+            <div class="stat-card"><div class="k">退款总额</div><div class="v">¥ ${fmt(refundTotal, false)}</div></div>
+            <div class="stat-card"><div class="k">利润（减退款）</div><div class="v ${profitCls(r.profitNet)}">${r.profitNet > 0 ? "+" : ""}¥ ${fmt(r.profitNet, false)}（${profitText(r.profitNet)}）</div></div>
+          </div>
+          <table class="hist-table compact">
+            <thead><tr><th>月份口径</th><th class="num">销量</th><th class="num">销售额</th><th class="num">利润</th><th class="num">退款额</th></tr></thead>
+            <tbody>
+              <tr><td>当月（发货月=高销量月）</td><td class="num">${fmt(r.qty[0])}</td><td class="num">${fmtMoney(r.sales[0])}</td><td class="num">${fmtMoney(r.profit[0])}</td><td class="num">${fmtMoney(r.refundAmt[0])}</td></tr>
+              <tr><td>次月</td><td class="num">${fmt(r.qty[1])}</td><td class="num">${fmtMoney(r.sales[1])}</td><td class="num">${fmtMoney(r.profit[1])}</td><td class="num">${fmtMoney(r.refundAmt[1])}</td></tr>
+              <tr><td>第三月</td><td class="num">${fmt(r.qty[2])}</td><td class="num">${fmtMoney(r.sales[2])}</td><td class="num">${fmtMoney(r.profit[2])}</td><td class="num">${fmtMoney(r.refundAmt[2])}</td></tr>
+              <tr style="background:#f7f8fa"><td><b>合计（已知月份）</b></td><td class="num"><b>${fmt(sum3(r.qty))}</b></td><td class="num"><b>${fmtMoney(salesTotal)}</b></td><td class="num"><b>${fmtMoney(profitTotal)}</b></td><td class="num"><b>${fmtMoney(refundTotal)}</b></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px;color:var(--text-3);font-size:12px;">总利润率 = ${profitRate}；总退款率 = ${refundRate}。</p>
+        </div>
+        <div class="detail-section">
+          <div class="sec-title">历史快照</div>
+          <div class="sec-desc">每次更新保留完整快照（销量、销售额、利润、退款及合计/退款率）；列表仅展示最新一条。</div>
+          <div class="hist-scroll">
+            <table class="hist-table">
+              <thead>
+                <tr>
+                  <th>快照日期</th>
+                  <th>节点</th>
+                  <th class="num">当月销量</th>
+                  <th class="num">次月销量</th>
+                  <th class="num">第三月销量</th>
+                  <th class="num">当月销售额</th>
+                  <th class="num">次月销售额</th>
+                  <th class="num">第三月销售额</th>
+                  <th class="num">销售总额</th>
+                  <th class="num">当月利润</th>
+                  <th class="num">次月利润</th>
+                  <th class="num">第三月利润</th>
+                  <th class="num">利润总额</th>
+                  <th class="num">总利润率</th>
+                  <th class="num">当月退款数</th>
+                  <th class="num">次月退款数</th>
+                  <th class="num">第三月退款数</th>
+                  <th class="num">当月退款额</th>
+                  <th class="num">次月退款额</th>
+                  <th class="num">第三月退款额</th>
+                  <th class="num">退款总额</th>
+                  <th class="num">总退款率</th>
+                  <th class="num">利润（减退款）</th>
+                </tr>
+              </thead>
+              <tbody>${histHtml}</tbody>
+            </table>
+          </div>
+        </div>`;
+      document.getElementById("detailMask").classList.add("show");
+    }
+
+    function openTrend(sku) {
+      const r = rows.find(x => x.sku === sku);
+      document.getElementById("trendTitle").textContent = `利润趋势图 · ${sku} ${r.name}`;
+      document.getElementById("trendBody").innerHTML = '<div class="trend-chart-wrap" id="trendChartEl"></div>';
+      document.getElementById("trendMask").classList.add("show");
+      requestAnimationFrame(() => renderTrendChart(sku));
+    }
+
+    function openStat() { document.getElementById("statMask").classList.add("show"); }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("show");
+      if (id === "trendMask" && trendChart) {
+        trendChart.dispose();
+        trendChart = null;
+      }
+    }
+    function doSearch() { render(); toast("已按条件刷新列表"); }
+    function syncSelectEmpty(el) {
+      if (!el) return;
+      el.dataset.empty = el.value === "" ? "1" : "0";
+    }
+    function bindFilterSelectStyle() {
+      ["fDept", "fHot", "fProfit"].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        syncSelectEmpty(el);
+        el.addEventListener("change", () => syncSelectEmpty(el));
+      });
+    }
+    function resetFilter() {
+      document.getElementById("fPlatform").value = "all";
+      document.getElementById("fDept").value = "";
+      document.getElementById("fHot").value = "";
+      document.getElementById("fProfit").value = "";
+      document.getElementById("fDateType").value = "add";
+      document.getElementById("fKeyword").value = "";
+      ["fDept", "fHot", "fProfit"].forEach(id => syncSelectEmpty(document.getElementById(id)));
+      render();
+      toast("已重置筛选");
+    }
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window.__tt);
+      window.__tt = setTimeout(() => el.classList.remove("show"), 1800);
+    }
+    document.querySelectorAll(".mask").forEach(m => {
+      m.addEventListener("click", e => { if (e.target === m) m.classList.remove("show"); });
+    });
+    bindFilterSelectStyle();
+    render();
+  </script>
+</body>
+</html>
