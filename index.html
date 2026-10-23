@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>高销量产品利润跟进 · 需求原型 · CSM-9984</title>
+  <title>高销量产品利润分析 · 需求原型 · CSM-9984</title>
   <style>
     :root {
       --bg: #f0f2f5;
@@ -27,21 +27,28 @@
       --font: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+    }
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       font-size: 13px;
       line-height: 1.5;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     .app-header {
       background: var(--header);
       color: #fff;
-      height: 48px;
+      height: 44px;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
-      padding: 0 20px;
+      padding: 0 16px;
       gap: 16px;
     }
     .app-header .logo { font-weight: 600; font-size: 15px; letter-spacing: .02em; }
@@ -56,23 +63,40 @@
       font-size: 12px;
       color: rgba(255,255,255,.85);
     }
-    .layout { padding: 16px 20px 40px; max-width: 100%; }
+    .layout {
+      flex: 1;
+      min-height: 0;
+      padding: 10px 12px 8px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .page-title {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 0;
+      flex-shrink: 0;
+      gap: 12px;
     }
-    .page-title h1 { font-size: 18px; font-weight: 600; }
-    .page-title .meta { color: var(--text-3); font-size: 12px; }
+    .page-title h1 { font-size: 16px; font-weight: 600; white-space: nowrap; }
+    .page-title .meta { color: var(--text-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      margin-bottom: 12px;
+      margin-bottom: 0;
     }
-    .filter-panel { padding: 14px 16px; background: #f7f8fa; }
+    .filter-panel { padding: 10px 12px; background: #f7f8fa; flex-shrink: 0; }
+    .list-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
     .filter-grid {
       display: flex;
       flex-wrap: wrap;
@@ -165,16 +189,21 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 16px;
+      padding: 8px 12px;
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
     .toolbar .left { display: flex; gap: 8px; align-items: center; }
     .toolbar .hint { color: var(--text-3); font-size: 12px; }
-    .table-wrap { overflow: auto; max-height: calc(100vh - 320px); }
+    .table-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 2200px;
+      min-width: 1680px;
     }
     thead th {
       position: sticky;
@@ -182,7 +211,7 @@
       z-index: 2;
       background: #f7f8fa;
       border-bottom: 1px solid var(--border);
-      padding: 8px 10px;
+      padding: 6px 8px;
       text-align: left;
       font-weight: 500;
       color: var(--text-2);
@@ -190,7 +219,7 @@
       font-size: 12px;
     }
     tbody td {
-      padding: 10px;
+      padding: 6px 8px;
       border-bottom: 1px solid var(--border);
       vertical-align: top;
       white-space: nowrap;
@@ -199,9 +228,9 @@
     .sku { color: var(--text); font-weight: 500; }
     .prod-info {
       white-space: normal;
-      min-width: 220px;
-      max-width: 280px;
-      line-height: 1.7;
+      min-width: 180px;
+      max-width: 220px;
+      line-height: 1.45;
       font-size: 12px;
     }
     .prod-info .row {
@@ -228,6 +257,26 @@
       position: relative;
     }
     .modal.trend-wide { width: min(1100px, 100%); }
+    /* 明细弹窗：仅保证横向一屏展示完，纵向保持原滚动 */
+    #detailMask .modal {
+      width: min(1280px, calc(100vw - 32px));
+      max-height: 90vh;
+    }
+    #detailMask .hist-table.merged {
+      min-width: 0;
+      width: 100%;
+      table-layout: fixed;
+    }
+    #detailMask .hist-table.merged th,
+    #detailMask .hist-table.merged td {
+      white-space: normal;
+      vertical-align: top;
+    }
+    #detailMask .hist-table.merged .combo-cell {
+      min-width: 0;
+      white-space: nowrap;
+    }
+    #detailMask .hist-scroll { overflow-x: hidden; overflow-y: auto; }
     .num { font-variant-numeric: tabular-nums; text-align: right; }
     th.num, td.num { text-align: right; }
     .empty { color: var(--text-3); }
@@ -236,8 +285,10 @@
       align-items: center;
       justify-content: flex-end;
       gap: 8px;
-      padding: 10px 16px;
+      padding: 6px 12px;
       color: var(--text-2);
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
     }
     .pager .btn { min-width: 32px; padding: 0 8px; }
     .pager .btn.active {
@@ -293,8 +344,73 @@
 
     .hist-table { min-width: 1600px; width: 100%; }
     .hist-table.compact { min-width: 0; }
+    .hist-table.merged { min-width: 980px; }
     .hist-table thead th { position: static; }
     .hist-scroll { overflow: auto; }
+    .hist-table .combo-cell .frozen { color: #86909c; }
+    #statMask .modal {
+      width: min(1360px, calc(100vw - 24px));
+      max-height: min(90vh, 760px);
+    }
+    #statMask .modal-bd { overflow: hidden; }
+    .stat-rule {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      background: #f7f8fa;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-2);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+    .stat-table {
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    .stat-table th,
+    .stat-table td {
+      padding: 6px 2px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 11px;
+      vertical-align: middle;
+      text-align: center;
+    }
+    .stat-table thead th.m {
+      font-size: 10px;
+      letter-spacing: -0.2px;
+    }
+    .stat-table thead th {
+      background: #f7f8fa;
+      color: var(--text-2);
+      font-weight: 500;
+      position: static;
+    }
+    .stat-table th:first-child,
+    .stat-table td:first-child {
+      text-align: left;
+      padding-left: 8px;
+      width: 8%;
+    }
+    .stat-table th.plat,
+    .stat-table td.plat {
+      text-align: left;
+      width: 8%;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .stat-table th.m,
+    .stat-table td.m { width: 5.4%; font-variant-numeric: tabular-nums; }
+    .stat-table th.tot,
+    .stat-table td.tot { width: 8%; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .stat-table th.flag,
+    .stat-table td.flag { width: 6%; }
+    .stat-table td.m.empty,
+    .stat-table td.tot.empty { color: var(--text-3); }
     .ctx-bar {
       display: flex;
       flex-wrap: wrap;
@@ -343,14 +459,16 @@
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
       text-align: left;
-      line-height: 1.55;
-      min-width: 120px;
+      line-height: 1.4;
+      min-width: 108px;
+      font-size: 12px;
     }
     .reason-cell {
       white-space: normal;
-      min-width: 200px;
-      max-width: 260px;
-      line-height: 1.6;
+      min-width: 160px;
+      max-width: 200px;
+      line-height: 1.4;
+      font-size: 12px;
     }
     .rule-box {
       background: #f7f8fa;
@@ -395,13 +513,17 @@
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     .proto-note {
-      margin-top: 12px;
-      padding: 10px 14px;
+      flex-shrink: 0;
+      margin-top: 0;
+      padding: 6px 10px;
       background: #fff7e8;
       border: 1px solid #ffe4ba;
       border-radius: var(--radius);
       color: #ad6800;
-      font-size: 12px;
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     @media (max-width: 1100px) {
       .stat-summary { grid-template-columns: 1fr; }
@@ -411,13 +533,13 @@
 <body>
   <header class="app-header">
     <div class="logo">CRM</div>
-    <div class="crumb">数据中心 / 统计报表 / <b>高销量产品利润跟进</b></div>
+    <div class="crumb">数据中心 / 统计报表 / <b>高销量产品利润分析</b></div>
     <div class="badge">CSM-9984 · 权限 A 级</div>
   </header>
 
   <main class="layout">
     <div class="page-title">
-      <h1>高销量产品利润跟进</h1>
+      <h1>高销量产品利润分析</h1>
       <div class="meta">默认：小包 · 已发货 · 所有平台（不分平台汇总）· Top 10000（月销量&lt;10不计入）· 更新后仅展示最新，历史可点开查看</div>
     </div>
 
@@ -465,11 +587,11 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel list-panel">
       <div class="toolbar">
         <div class="left">
           <button class="btn btn-primary" onclick="toast('已按当前列表条件导出（原型）')">导出</button>
-          <button class="btn" onclick="openStat()">统计功能</button>
+          <button class="btn" onclick="openStat()">统计</button>
           <span class="hint">共 <b id="totalCount">6</b> 条 · 展示最新快照</span>
         </div>
         <div class="hint">销量/利润仅前 4 次更新 · 退款与产品信息每次更新</div>
@@ -508,7 +630,7 @@
     </section>
 
     <div class="proto-note">
-      原型说明（CSM-9984）：功能位置 CRM → 数据中心 → 统计报表。列表默认小包已发货 Top10000；产品编号无超链接；点「最新利润情况」的「查看」可在同一页查看最新明细与历史快照；「统计功能」展示连续高销量产品利润（减退款）。本页为交互示意，非最终 UI。
+      原型说明（CSM-9984）：功能位置 CRM → 数据中心 → 统计报表 → 高销量产品利润分析。列表默认小包已发货 Top10000；产品编号无超链接；点「最新利润情况」的「查看」可在同一页查看最新明细与历史快照；「统计」展示连续高销量产品利润（减退款）。本页为交互示意，非最终 UI。
     </div>
   </main>
 
@@ -540,9 +662,9 @@
     </div>
   </div>
 
-  <!-- 统计 -->
+  <!-- 统计：12 个月逐月利润变化一屏展示，无明细展开 -->
   <div class="mask" id="statMask">
-    <div class="modal wide">
+    <div class="modal">
       <div class="modal-hd">
         <h3>连续高销量产品统计（近 12 个月）</h3>
         <button class="close-x" onclick="closeModal('statMask')">×</button>
@@ -553,46 +675,157 @@
           <div class="stat-card"><div class="k">整体利润（减退款）</div><div class="v pos">+ ¥ 1,286,430</div></div>
           <div class="stat-card"><div class="k">整体判断</div><div class="v pos">正</div></div>
         </div>
-        <p style="margin-bottom:10px;color:var(--text-2);font-size:12px;">规则：12 个月内添加次数 ≥2 且连续添加；按整月合并利润（减退款）明细。</p>
-        <table class="hist-table">
+        <div class="stat-rule">
+          <div>统计时点示意：当前为 <b>2026-10</b>，统计区间 = <b>2025-09 ～ 2026-08</b>；筛选该区间内连续添加 ≥2 次的产品，按整月合并利润（减退款）。统计范围随列表「平台」筛选：所有平台 / 具体平台分别对应各自数据集。</div>
+          <div>连续口径：去年 10 月 1 与今年 1 月 1 算连续；去年 11 月 1 与今年 2 月 1 算连续；以此类推。</div>
+        </div>
+        <table class="stat-table">
           <thead>
             <tr>
               <th>产品编号</th>
-              <th>产品名称</th>
-              <th class="num">添加次数</th>
-              <th>连续区间</th>
-              <th class="num">近12月利润(减退款)</th>
-              <th>整体</th>
-              <th>月度明细</th>
+              <th class="plat">平台</th>
+              <th class="m">2025-09</th>
+              <th class="m">2025-10</th>
+              <th class="m">2025-11</th>
+              <th class="m">2025-12</th>
+              <th class="m">2026-01</th>
+              <th class="m">2026-02</th>
+              <th class="m">2026-03</th>
+              <th class="m">2026-04</th>
+              <th class="m">2026-05</th>
+              <th class="m">2026-06</th>
+              <th class="m">2026-07</th>
+              <th class="m">2026-08</th>
+              <th class="tot">总利润</th>
+              <th class="flag">利润情况</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="sku">AAAAAA</td>
-              <td>无线蓝牙耳机 Pro</td>
-              <td class="num">3</td>
-              <td>2025-10 → 2026-01 → 2026-04</td>
-              <td class="num pos">+86,420</td>
-              <td><span class="pos">正</span></td>
-              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+          <tbody id="statTbody">
+            <tr data-platform="所有平台">
+              <td class="sku" title="AAAAAA · 无线蓝牙耳机 Pro">AAAAAA</td>
+              <td class="plat">所有平台</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+18.2k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+24.6k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+43.6k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="tot pos">+86,420</td>
+              <td class="flag"><span class="pos">正</span></td>
             </tr>
-            <tr>
-              <td class="sku">I500807233</td>
-              <td>多功能厨房收纳架</td>
-              <td class="num">2</td>
-              <td>2026-07 → 2026-10</td>
-              <td class="num neg">-12,350</td>
-              <td><span class="neg">负</span></td>
-              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+            <tr data-platform="所有平台">
+              <td class="sku" title="I500807233 · 多功能厨房收纳架 · 连续：2026-05 → 2026-08">I500807233</td>
+              <td class="plat">所有平台</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m neg">-4.1k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m neg">-8.3k</td>
+              <td class="tot neg">-12,350</td>
+              <td class="flag"><span class="neg">负</span></td>
             </tr>
-            <tr>
-              <td class="sku">B778812</td>
-              <td>宠物自动喂食器</td>
-              <td class="num">4</td>
-              <td>2025-11 → … → 2026-08</td>
-              <td class="num pos">+152,880</td>
-              <td><span class="pos">正</span></td>
-              <td><span class="link" onclick="toast('展开 12 个月明细（原型）')">查看</span></td>
+            <tr data-platform="所有平台">
+              <td class="sku" title="B778812 · 宠物自动喂食器">B778812</td>
+              <td class="plat">所有平台</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+22.4k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+31.8k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+48.6k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+50.1k</td>
+              <td class="tot pos">+152,880</td>
+              <td class="flag"><span class="pos">正</span></td>
+            </tr>
+            <tr data-platform="Amazon">
+              <td class="sku" title="AAAAAA · Amazon">AAAAAA</td>
+              <td class="plat">Amazon</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+12.8k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+16.4k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+28.6k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="tot pos">+57,800</td>
+              <td class="flag"><span class="pos">正</span></td>
+            </tr>
+            <tr data-platform="eBay">
+              <td class="sku" title="AAAAAA · eBay">AAAAAA</td>
+              <td class="plat">eBay</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+5.4k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+8.2k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+15.0k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="tot pos">+28,620</td>
+              <td class="flag"><span class="pos">正</span></td>
+            </tr>
+            <tr data-platform="eBay">
+              <td class="sku" title="I500807233 · eBay">I500807233</td>
+              <td class="plat">eBay</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m neg">-4.1k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m neg">-8.3k</td>
+              <td class="tot neg">-12,350</td>
+              <td class="flag"><span class="neg">负</span></td>
+            </tr>
+            <tr data-platform="Shopify">
+              <td class="sku" title="B778812 · Shopify">B778812</td>
+              <td class="plat">Shopify</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+22.4k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+31.8k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+48.6k</td>
+              <td class="m empty">—</td>
+              <td class="m empty">—</td>
+              <td class="m pos">+50.1k</td>
+              <td class="tot pos">+152,880</td>
+              <td class="flag"><span class="pos">正</span></td>
             </tr>
           </tbody>
         </table>
@@ -1063,25 +1296,47 @@
       }
     }
 
+    function histVal(v) {
+      return v == null || v === "" ? "—" : v;
+    }
+    function histMoney(v) {
+      const t = histVal(v);
+      return t === "—" ? "—" : `¥ ${t}`;
+    }
+    // 与列表一致：当月/次月/第三月合并五行；合计合并五行。freezeSales 仅销量/销售额/利润变灰
+    function histComboMonth(qty, sales, profit, rq, ra, opts = {}) {
+      const { bold, freezeSales } = opts;
+      const wrap = (txt, freeze) => {
+        const cls = freeze && freezeSales ? " frozen" : "";
+        return bold ? `<span class="${cls}"><b>${txt}</b></span>` : `<span class="${cls}">${txt}</span>`;
+      };
+      return `<div class="combo-cell">${wrap(`销量：${histVal(qty)}`, true)}<br>${wrap(`销售额：${histMoney(sales)}`, true)}<br>${wrap(`利润：${histMoney(profit)}`, true)}<br>${wrap(`退款数量：${histVal(rq)}`, false)}<br>${wrap(`退款金额：${histMoney(ra)}`, false)}</div>`;
+    }
+    function histComboTotal(qty, sales, profit, rq, ra, opts = {}) {
+      const { bold, freezeSales } = opts;
+      const wrap = (txt, freeze) => {
+        const cls = freeze && freezeSales ? " frozen" : "";
+        return bold ? `<span class="${cls}"><b>${txt}</b></span>` : `<span class="${cls}"><b>${txt}</b></span>`;
+      };
+      return `<div class="combo-cell">${wrap(`总销量：${histVal(qty)}`, true)}<br>${wrap(`总销售额：${histMoney(sales)}`, true)}<br>${wrap(`总利润：${histMoney(profit)}`, true)}<br>${wrap(`总退款数量：${histVal(rq)}`, false)}<br>${wrap(`总退款金额：${histMoney(ra)}`, false)}</div>`;
+    }
     function histRow(cells, opts = {}) {
       const { bold, current, freezeSales } = opts;
-      const wrap = (v, cls = "") => {
-        const t = v == null || v === "" ? "—" : v;
-        const extra = freezeSales ? " frozen" : "";
+      const wrap = (v, cls = "", freeze = false) => {
+        const t = histVal(v);
+        const extra = freeze && freezeSales ? " frozen" : "";
         return `<td class="num ${cls}${extra}">${bold ? `<b>${t}</b>` : t}</td>`;
       };
       const style = current ? ' style="background:#f7f8fa"' : "";
+      const comboOpts = { bold, freezeSales };
       return `<tr${style}>
         <td>${bold ? `<b>${cells.date}</b>` : cells.date}</td>
         <td>${bold ? `<b>${cells.node}</b>` : cells.node}</td>
-        ${wrap(cells.qty0)}${wrap(cells.qty1)}${wrap(cells.qty2)}
-        ${wrap(cells.sales0)}${wrap(cells.sales1)}${wrap(cells.sales2)}
-        ${wrap(cells.qtyTotal)}${wrap(cells.salesTotal)}
-        ${wrap(cells.profit0)}${wrap(cells.profit1)}${wrap(cells.profit2)}${wrap(cells.profitTotal)}
-        ${wrap(cells.profitRate)}
-        ${wrap(cells.rq0)}${wrap(cells.rq1)}${wrap(cells.rq2)}
-        ${wrap(cells.ra0)}${wrap(cells.ra1)}${wrap(cells.ra2)}
-        ${wrap(cells.rqTotal)}${wrap(cells.refundTotal)}
+        <td>${histComboMonth(cells.qty0, cells.sales0, cells.profit0, cells.rq0, cells.ra0, comboOpts)}</td>
+        <td>${histComboMonth(cells.qty1, cells.sales1, cells.profit1, cells.rq1, cells.ra1, comboOpts)}</td>
+        <td>${histComboMonth(cells.qty2, cells.sales2, cells.profit2, cells.rq2, cells.ra2, comboOpts)}</td>
+        <td>${histComboTotal(cells.qtyTotal, cells.salesTotal, cells.profitTotal, cells.rqTotal, cells.refundTotal, comboOpts)}</td>
+        ${wrap(cells.profitRate, "", true)}
         ${wrap(cells.refundRate)}
         ${wrap(cells.profitNet, cells.profitNetCls || "")}
       </tr>`;
@@ -1273,32 +1528,16 @@
             <div><b>同一天计数：</b>同一自然日无论跑多少遍，只算 1 次更新，只保留当日最后一次快照。</div>
           </div>
           <div class="hist-scroll">
-            <table class="hist-table">
+            <table class="hist-table merged">
               <thead>
                 <tr>
                   <th>快照日期</th>
                   <th>节点</th>
-                  <th class="num">当月销量</th>
-                  <th class="num">次月销量</th>
-                  <th class="num">第三月销量</th>
-                  <th class="num">当月销售额</th>
-                  <th class="num">次月销售额</th>
-                  <th class="num">第三月销售额</th>
-                  <th class="num">总销量</th>
-                  <th class="num">总销售额</th>
-                  <th class="num">当月利润</th>
-                  <th class="num">次月利润</th>
-                  <th class="num">第三月利润</th>
-                  <th class="num">总利润</th>
+                  <th>当月数据</th>
+                  <th>次月数据</th>
+                  <th>第三月数据</th>
+                  <th>合计数据</th>
                   <th class="num">总利润率</th>
-                  <th class="num">当月退款数量</th>
-                  <th class="num">次月退款数量</th>
-                  <th class="num">第三月退款数量</th>
-                  <th class="num">当月退款金额</th>
-                  <th class="num">次月退款金额</th>
-                  <th class="num">第三月退款金额</th>
-                  <th class="num">总退款数量</th>
-                  <th class="num">总退款金额</th>
                   <th class="num">总退款率</th>
                   <th class="num">利润（减退款）</th>
                 </tr>
@@ -1318,7 +1557,14 @@
       requestAnimationFrame(() => renderTrendChart(sku, r.platform));
     }
 
-    function openStat() { document.getElementById("statMask").classList.add("show"); }
+    function openStat() {
+      const raw = document.getElementById("fPlatform").value;
+      const platform = (!raw || raw === "all") ? "所有平台" : raw;
+      document.querySelectorAll("#statTbody tr").forEach(tr => {
+        tr.style.display = tr.dataset.platform === platform ? "" : "none";
+      });
+      document.getElementById("statMask").classList.add("show");
+    }
     function closeModal(id) {
       document.getElementById(id).classList.remove("show");
       if (id === "trendMask" && trendChart) {
