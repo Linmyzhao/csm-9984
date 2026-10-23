@@ -295,6 +295,25 @@
     .hist-table.compact { min-width: 0; }
     .hist-table thead th { position: static; }
     .hist-scroll { overflow: auto; }
+    .ctx-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      background: #f7f8fa;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .ctx-bar .item { display: flex; gap: 4px; align-items: baseline; }
+    .ctx-bar .k { color: var(--text-3); }
+    .ctx-bar .v { color: var(--text); font-weight: 500; }
+    .ctx-bar .v.platform {
+      color: var(--primary);
+      font-weight: 600;
+    }
     .detail-section { margin-bottom: 20px; }
     .detail-section:last-child { margin-bottom: 0; }
     .detail-section .sec-title {
@@ -804,7 +823,8 @@
     }
 
     let trendChart = null;
-    function renderTrendChart(sku, _platform) {
+    function renderTrendChart(sku, platform) {
+      const r = findRow(sku, platform);
       const d = getTrendData(sku);
       const el = document.getElementById("trendChartEl");
       if (!el) return;
@@ -819,12 +839,15 @@
       trendChart = echarts.init(el);
       const pink = "#f4a6b8";
       const blue = "#5b8ff9";
+      const plat = r ? r.platform : (platform || "所有平台");
       trendChart.setOption({
         title: {
-          text: "近1年利润趋势",
+          text: `近1年利润趋势 · ${plat}`,
+          subtext: `${sku} · ${platformScopeHint(plat)}`,
           left: "center",
           top: 4,
-          textStyle: { fontSize: 15, fontWeight: 600, color: "#1d2129" }
+          textStyle: { fontSize: 15, fontWeight: 600, color: "#1d2129" },
+          subtextStyle: { fontSize: 12, color: "#86909c" }
         },
         legend: {
           bottom: 4,
@@ -850,7 +873,7 @@
             return html;
           }
         },
-        grid: { left: 48, right: 24, top: 56, bottom: 56, containLabel: true },
+        grid: { left: 48, right: 24, top: 72, bottom: 56, containLabel: true },
         xAxis: {
           type: "category",
           data: trendMonths,
@@ -1067,6 +1090,19 @@
     function findRow(sku, platform) {
       return rows.find(x => x.sku === sku && x.platform === platform) || rows.find(x => x.sku === sku);
     }
+    function platformScopeHint(platform) {
+      return platform === "所有平台"
+        ? "当前为不分平台汇总数据（按产品编号一条）"
+        : `当前为「${platform}」平台数据（按平台 + 产品编号）`;
+    }
+    function ctxBarHtml(r) {
+      return `<div class="ctx-bar">
+        <div class="item"><span class="k">平台：</span><span class="v platform">${r.platform}</span></div>
+        <div class="item"><span class="k">产品编号：</span><span class="v">${r.sku}</span></div>
+        <div class="item"><span class="k">产品名称：</span><span class="v">${r.name}</span></div>
+        <div class="item"><span class="k">口径：</span><span class="v">${platformScopeHint(r.platform)}</span></div>
+      </div>`;
+    }
     function openDetail(sku, platform) {
       const r = findRow(sku, platform);
       const salesTotal = sum3(r.sales);
@@ -1077,7 +1113,7 @@
       const dash = "—";
       const profitRate = salesTotal ? ((profitTotal / salesTotal) * 100).toFixed(2) + "%" : dash;
       const refundRate = salesTotal ? ((refundTotal / salesTotal) * 100).toFixed(2) + "%" : dash;
-      document.getElementById("detailTitle").textContent = `利润明细与历史 · ${r.platform} · ${sku} ${r.name}`;
+      document.getElementById("detailTitle").textContent = `利润明细与历史 · ${r.platform} · ${sku}`;
 
       // 添加不计入更新；之后6次更新。销量/销售额/利润仅前4次更新；退款6次都更新
       const salesFreeze = {
@@ -1170,9 +1206,10 @@
       ].join("");
 
       document.getElementById("detailBody").innerHTML = `
+        ${ctxBarHtml(r)}
         <div class="detail-section">
-          <div class="sec-title">最新利润明细</div>
-          <div class="sec-desc">按当月 / 次月 / 第三月展示当前最新数据；未到月份为空，合计仅按已知月份计算。</div>
+          <div class="sec-title">最新利润明细（${r.platform}）</div>
+          <div class="sec-desc">平台：${r.platform}。按当月 / 次月 / 第三月展示当前最新数据；未到月份为空，合计仅按已知月份计算。</div>
           <div class="stat-summary">
             <div class="stat-card"><div class="k">总利润</div><div class="v">¥ ${fmt(profitTotal, false)}</div></div>
             <div class="stat-card"><div class="k">总退款金额</div><div class="v">¥ ${fmt(refundTotal, false)}</div></div>
@@ -1227,7 +1264,7 @@
           <p style="margin-top:10px;color:var(--text-3);font-size:12px;">总利润率 = ${profitRate}；总退款率 = ${refundRate}。</p>
         </div>
         <div class="detail-section">
-          <div class="sec-title">历史快照（以10/1添加为例）</div>
+          <div class="sec-title">历史快照（${r.platform} · 以10/1添加为例）</div>
           <div class="rule-box">
             <div><b>添加：</b>每月1号写入，不计入更新次数。</div>
             <div><b>更新：</b>添加之后每半月更新，共 <b>6 次</b>（不含第一次添加）。</div>
@@ -1275,10 +1312,10 @@
 
     function openTrend(sku, platform) {
       const r = findRow(sku, platform);
-      document.getElementById("trendTitle").textContent = `利润趋势图 · ${r.platform} · ${sku} ${r.name}`;
-      document.getElementById("trendBody").innerHTML = '<div class="trend-chart-wrap" id="trendChartEl"></div>';
+      document.getElementById("trendTitle").textContent = `利润趋势图 · ${r.platform} · ${sku}`;
+      document.getElementById("trendBody").innerHTML = `${ctxBarHtml(r)}<div class="trend-chart-wrap" id="trendChartEl"></div>`;
       document.getElementById("trendMask").classList.add("show");
-      requestAnimationFrame(() => renderTrendChart(sku, platform));
+      requestAnimationFrame(() => renderTrendChart(sku, r.platform));
     }
 
     function openStat() { document.getElementById("statMask").classList.add("show"); }
