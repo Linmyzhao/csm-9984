@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
@@ -272,11 +272,104 @@
       white-space: normal;
       vertical-align: top;
     }
-    #detailMask .hist-table.merged .combo-cell {
+    #detailMask .hist-table.merged
+    #detailMask .hist-scroll { overflow-x: hidden; overflow-y: auto; }
+    
+    /* 高销量红星：固定占位，避免列表错位 */
+    .hot-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #f5222d;
+      vertical-align: -1px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .hot-mark svg.hot-ico,
+    .hot-mark .hot-ico {
+      display: block;
+      width: 14px;
+      height: 14px;
+      fill: #f5222d;
+      color: #f5222d;
+    }
+    .hot-mark svg.hot-ico path {
+      fill: #f5222d !important;
+    }
+    .combo-cell {
+      min-width: 128px;
+      white-space: normal;
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+    .combo-cell .combo-line {
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      min-height: 18px;
+    }
+    .combo-cell .combo-line .combo-label {
+      flex: 1;
       min-width: 0;
+    }
+    .combo-cell .hot-slot {
+      display: inline-flex;
+      width: 18px;
+      height: 14px;
+      margin-right: 2px;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    
+    /* 高销量红星：左侧固定槽，五行标签纵向对齐 */
+    .hot-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #f5222d;
+      line-height: 1;
+    }
+    .hot-mark svg.hot-ico path {
+      fill: #f5222d !important;
+    }
+    .combo-cell {
+      min-width: 136px;
+      white-space: normal;
+      line-height: 1.45;
+      font-variant-numeric: tabular-nums;
+    }
+    .combo-cell .combo-line {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      column-gap: 4px;
+      align-items: center;
+      min-height: 18px;
       white-space: nowrap;
     }
-    #detailMask .hist-scroll { overflow-x: hidden; overflow-y: auto; }
+    .combo-cell .hot-slot {
+      width: 18px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .combo-cell .combo-label {
+      min-width: 0;
+    }
+
     .num { font-variant-numeric: tabular-nums; text-align: right; }
     th.num, td.num { text-align: right; }
     .empty { color: var(--text-3); }
@@ -540,7 +633,7 @@
   <main class="layout">
     <div class="page-title">
       <h1>高销量产品利润分析</h1>
-      <div class="meta">默认：小包 · 已发货 · 所有平台（不分平台汇总）· Top 10000（月销量&lt;10不计入）· 更新后仅展示最新，历史可点开查看</div>
+      <div class="meta">默认：小包 · 已发货 · 所有平台（不分平台汇总）· Top 10000（月销量&lt;10不计入）· 列表读主表最新回写；历史直读高销量月快照表</div>
     </div>
 
     <section class="panel filter-panel">
@@ -594,7 +687,7 @@
           <button class="btn" onclick="openStat()">统计</button>
           <span class="hint">共 <b id="totalCount">6</b> 条 · 展示最新快照</span>
         </div>
-        <div class="hint">销量/利润仅前 4 次更新 · 退款与产品信息每次更新</div>
+        <div class="hint">批次=产品+平台+高销量月 · 当月/次月/第三月按列更新至满6次 · 快照按日存三列</div>
       </div>
 
       <div class="table-wrap">
@@ -630,7 +723,7 @@
     </section>
 
     <div class="proto-note">
-      原型说明（CSM-9984）：功能位置 CRM → 数据中心 → 统计报表 → 高销量产品利润分析。列表默认小包已发货 Top10000；产品编号无超链接；点「最新利润情况」的「查看」可在同一页查看最新明细与历史快照；「统计」展示连续高销量产品利润（减退款）。本页为交互示意，非最终 UI。
+      原型说明（CSM-9984 / V1.7.3）：功能位置 CRM → 数据中心 → 统计报表 → 高销量产品利润分析。列表一行=一条批次（产品+平台+高销量月）；指标来自主表回写（=该批次最新一行高销量月快照表）。点「最新利润情况」查看最新明细与按快照日期的历史横表；「统计」读连续高销量结果表。本页为交互示意，非最终 UI。
     </div>
   </main>
 
@@ -677,7 +770,7 @@
         </div>
         <div class="stat-rule">
           <div>统计时点示意：当前为 <b>2026-10</b>，统计区间 = <b>2025-09 ～ 2026-08</b>；筛选该区间内连续添加 ≥2 次的产品，按整月合并利润（减退款）。统计范围随列表「平台」筛选：所有平台 / 具体平台分别对应各自数据集。</div>
-          <div>连续口径：去年 10 月 1 与今年 1 月 1 算连续；去年 11 月 1 与今年 2 月 1 算连续；以此类推。</div>
+          <div>连续口径：相邻高销量月份相差正好 3 个月算连续（如 7 与 10、10 与 1）；区间内添加批次数 ≥2 才入统。</div>
         </div>
         <table class="stat-table">
           <thead>
@@ -848,7 +941,7 @@
         sku: "AAAAAA", platform: "所有平台",
         name: "无线蓝牙耳机 Pro", cate: "耳机", bigCate: "3C数码",
         status: "在售", hot: true, buyer: "李敏", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 51240,
+        hotMonth: "2026-09", hotNext: true, hotThird: true, profitNet: 51240,
         spark: [22000, 26800, 31200, 37800, 44600, 51240],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [4800, 4100, 3100], sales: [278000, 236400, 176800],
@@ -860,7 +953,7 @@
         sku: "I500807233", platform: "所有平台",
         name: "多功能厨房收纳架", cate: "收纳", bigCate: "家居",
         status: "在售", hot: true, buyer: "王强", dept: "采购二组",
-        hotMonth: "2026-09", profitNet: -8320,
+        hotMonth: "2026-09", hotNext: false, hotThird: false, profitNet: -8320,
         spark: [5200, 2100, -800, -3200, -6100, -8320],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [4100, 3600, null], sales: [205000, 178200, null],
@@ -872,7 +965,7 @@
         sku: "B778812", platform: "所有平台",
         name: "宠物自动喂食器", cate: "智能设备", bigCate: "宠物",
         status: "在售", hot: false, buyer: "赵丽", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 61240,
+        hotMonth: "2026-09", hotNext: true, hotThird: true, profitNet: 61240,
         spark: [18600, 26800, 35200, 44800, 53600, 61240],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [2800, 3100, 2950], sales: [224000, 248000, 236000],
@@ -884,7 +977,7 @@
         sku: "C991002", platform: "所有平台",
         name: "户外折叠露营椅", cate: "露营", bigCate: "户外",
         status: "停售", hot: false, buyer: "陈峰", dept: "采购三组",
-        hotMonth: "2026-08", profitNet: 15680,
+        hotMonth: "2026-08", hotNext: false, hotThird: false, profitNet: 15680,
         spark: [9800, 11200, 12800, 14100, 15000, 15680],
         sparkLabels: ["09/01", "09/16", "10/01", "10/16", "11/01", "12/01"],
         qty: [1900, 1200, 800], sales: [95000, 60000, 40000],
@@ -896,7 +989,7 @@
         sku: "D112233", platform: "所有平台",
         name: "便携式榨汁杯", cate: "小家电", bigCate: "家电",
         status: "在售", hot: true, buyer: "李敏", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 0,
+        hotMonth: "2026-09", hotNext: true, hotThird: false, profitNet: 0,
         spark: [1800, 1200, 600, 200, 50, 0],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [1500, 0, null], sales: [45000, 0, null],
@@ -908,7 +1001,7 @@
         sku: "E445566", platform: "所有平台",
         name: "儿童益智积木套装", cate: "益智", bigCate: "玩具",
         status: "在售", hot: false, buyer: "周杰", dept: "采购二组",
-        hotMonth: "2026-09", profitNet: 23890,
+        hotMonth: "2026-09", hotNext: false, hotThird: false, profitNet: 23890,
         spark: [6200, 9800, 13600, 17800, 21000, 23890],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [2600, 2400, null], sales: [130000, 120000, null],
@@ -921,7 +1014,7 @@
         sku: "AAAAAA", platform: "Amazon",
         name: "无线蓝牙耳机 Pro", cate: "耳机", bigCate: "3C数码",
         status: "在售", hot: true, buyer: "李敏", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 42860,
+        hotMonth: "2026-09", hotNext: true, hotThird: true, profitNet: 42860,
         spark: [18600, 22100, 26800, 31200, 35600, 42860],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [3200, 2850, 2100], sales: [186000, 162400, 118800],
@@ -933,7 +1026,7 @@
         sku: "AAAAAA", platform: "eBay",
         name: "无线蓝牙耳机 Pro", cate: "耳机", bigCate: "3C数码",
         status: "在售", hot: true, buyer: "李敏", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 8380,
+        hotMonth: "2026-09", hotNext: false, hotThird: false, profitNet: 8380,
         spark: [3400, 4700, 4400, 6600, 9000, 8380],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [1600, 1250, 1000], sales: [92000, 74000, 58000],
@@ -945,7 +1038,7 @@
         sku: "I500807233", platform: "eBay",
         name: "多功能厨房收纳架", cate: "收纳", bigCate: "家居",
         status: "在售", hot: true, buyer: "王强", dept: "采购二组",
-        hotMonth: "2026-09", profitNet: -8320,
+        hotMonth: "2026-09", hotNext: true, hotThird: false, profitNet: -8320,
         spark: [5200, 2100, -800, -3200, -6100, -8320],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [4100, 3600, null], sales: [205000, 178200, null],
@@ -957,7 +1050,7 @@
         sku: "B778812", platform: "Shopify",
         name: "宠物自动喂食器", cate: "智能设备", bigCate: "宠物",
         status: "在售", hot: false, buyer: "赵丽", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 61240,
+        hotMonth: "2026-09", hotNext: false, hotThird: true, profitNet: 61240,
         spark: [18600, 26800, 35200, 44800, 53600, 61240],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [2800, 3100, 2950], sales: [224000, 248000, 236000],
@@ -969,7 +1062,7 @@
         sku: "C991002", platform: "Wish",
         name: "户外折叠露营椅", cate: "露营", bigCate: "户外",
         status: "停售", hot: false, buyer: "陈峰", dept: "采购三组",
-        hotMonth: "2026-08", profitNet: 15680,
+        hotMonth: "2026-08", hotNext: true, hotThird: true, profitNet: 15680,
         spark: [9800, 11200, 12800, 14100, 15000, 15680],
         sparkLabels: ["09/01", "09/16", "10/01", "10/16", "11/01", "12/01"],
         qty: [1900, 1200, 800], sales: [95000, 60000, 40000],
@@ -981,7 +1074,7 @@
         sku: "D112233", platform: "Amazon",
         name: "便携式榨汁杯", cate: "小家电", bigCate: "家电",
         status: "在售", hot: true, buyer: "李敏", dept: "采购一组",
-        hotMonth: "2026-09", profitNet: 0,
+        hotMonth: "2026-09", hotNext: false, hotThird: false, profitNet: 0,
         spark: [1800, 1200, 600, 200, 50, 0],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [1500, 0, null], sales: [45000, 0, null],
@@ -993,7 +1086,7 @@
         sku: "E445566", platform: "独立站",
         name: "儿童益智积木套装", cate: "益智", bigCate: "玩具",
         status: "在售", hot: false, buyer: "周杰", dept: "采购二组",
-        hotMonth: "2026-09", profitNet: 23890,
+        hotMonth: "2026-09", hotNext: true, hotThird: false, profitNet: 23890,
         spark: [6200, 9800, 13600, 17800, 21000, 23890],
         sparkLabels: ["10/01", "10/16", "11/01", "11/16", "12/01", "01/01"],
         qty: [2600, 2400, null], sales: [130000, 120000, null],
@@ -1211,14 +1304,30 @@
     }
 
 
-    function comboMonth(qty, amt, profit, refundQty, refundAmt) {
-      if (qty === null || qty === undefined || qty === "—") return '<span class="empty">—</span>';
+    function comboMonth(qty, amt, profit, refundQty, refundAmt, hotMark) {
+      const empty = qty === null || qty === undefined || qty === "—";
+      if (empty) {
+        return '<span class="empty">—</span>';
+      }
+      // 有高销量标且该月有数 → 红星；每行都留左侧槽，保证与销售额等文字对齐
+      const showHot = hotMark === true;
+      const star = '<svg class="hot-ico" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="#f5222d" d="M8 1.2l1.9 3.9 4.3.6-3.1 3 0.7 4.3L8 11.2l-3.8 2 0.7-4.3-3.1-3 4.3-.6L8 1.2z"/></svg>';
+      const slotHot = showHot
+        ? `<span class="hot-slot"><span class="hot-mark" title="高销量">${star}</span></span>`
+        : `<span class="hot-slot"></span>`;
+      const slotEmpty = `<span class="hot-slot"></span>`;
       const q = Number(String(qty).replace(/,/g, "")).toLocaleString("zh-CN");
       const a = Number(String(amt || 0).replace(/,/g, "")).toLocaleString("zh-CN");
       const p = Number(String(profit || 0).replace(/,/g, "")).toLocaleString("zh-CN");
       const rq = Number(String(refundQty || 0).replace(/,/g, "")).toLocaleString("zh-CN");
       const ra = Number(String(refundAmt || 0).replace(/,/g, "")).toLocaleString("zh-CN");
-      return `<div class="combo-cell">销量：${q}<br>销售额：¥ ${a}<br>利润：¥ ${p}<br>退款数量：${rq}<br>退款金额：¥ ${ra}</div>`;
+      return `<div class="combo-cell">` +
+        `<div class="combo-line">${slotHot}<span class="combo-label">销量：${q}</span></div>` +
+        `<div class="combo-line">${slotEmpty}<span class="combo-label">销售额：¥ ${a}</span></div>` +
+        `<div class="combo-line">${slotEmpty}<span class="combo-label">利润：¥ ${p}</span></div>` +
+        `<div class="combo-line">${slotEmpty}<span class="combo-label">退款数量：${rq}</span></div>` +
+        `<div class="combo-line">${slotEmpty}<span class="combo-label">退款金额：¥ ${ra}</span></div>` +
+        `</div>`;
     }
     function comboTotal(qty, amt, profit, refundQty, refundAmt) {
       const q = Number(String(qty || 0).replace(/,/g, "")).toLocaleString("zh-CN");
@@ -1280,9 +1389,9 @@
             <div style="margin-top:2px"><span class="link" onclick="openDetail('${r.sku}','${r.platform}')">查看</span></div>
           </td>
           <td><span class="link" onclick="openTrend('${r.sku}','${r.platform}')">查看</span></td>
-          <td>${comboMonth(r.qty[0], r.sales[0], r.profit[0], r.refundQty[0], r.refundAmt[0])}</td>
-          <td>${comboMonth(r.qty[1], r.sales[1], r.profit[1], r.refundQty[1], r.refundAmt[1])}</td>
-          <td>${comboMonth(r.qty[2], r.sales[2], r.profit[2], r.refundQty[2], r.refundAmt[2])}</td>
+          <td>${comboMonth(r.qty[0], r.sales[0], r.profit[0], r.refundQty[0], r.refundAmt[0], false)}</td>
+          <td>${comboMonth(r.qty[1], r.sales[1], r.profit[1], r.refundQty[1], r.refundAmt[1], !!(r.hotNext && r.qty[1] != null))}</td>
+          <td>${comboMonth(r.qty[2], r.sales[2], r.profit[2], r.refundQty[2], r.refundAmt[2], !!(r.hotThird && r.qty[2] != null))}</td>
           <td>${comboTotal(sum3(r.qty), salesTotal, profitTotal, sum3(r.refundQty), refundTotal)}</td>
           <td class="num">${profitRate}</td>
           <td class="num">${refundRate}</td>
@@ -1370,17 +1479,11 @@
       const refundRate = salesTotal ? ((refundTotal / salesTotal) * 100).toFixed(2) + "%" : dash;
       document.getElementById("detailTitle").textContent = `利润明细与历史 · ${r.platform} · ${sku}`;
 
-      // 添加不计入更新；之后6次更新。销量/销售额/利润仅前4次更新；退款6次都更新
-      const salesFreeze = {
-        qty0: "3,200", qty1: "2,850", qty2: "2,100",
-        sales0: "186,000", sales1: "162,400", sales2: "118,800",
-        qtyTotal: "8,150", salesTotal: "467,200",
-        profit0: "28,600", profit1: "22,100", profit2: "12,500", profitTotal: "63,200",
-        profitRate: "13.53%"
-      };
+      // 与文档一致：高销量月快照表按快照日期一行；行内按列写入当月/次月/第三月（门闩到点才首次写）
+      // 示例：高销量月 M=9，10/1 入池；主表回写最新一行
       const histHtml = [
         histRow({
-          date: "2026-10-01", node: "每月1号写入，不计入更新次数",
+          date: "2026-10-01", node: "快照·仅写当月（入池添加）",
           qty0: "3,200", qty1: dash, qty2: dash,
           sales0: "186,000", sales1: dash, sales2: dash,
           qtyTotal: "3,200", salesTotal: "186,000",
@@ -1393,71 +1496,83 @@
           profitNet: "+18,800", profitNetCls: "pos"
         }),
         histRow({
-          date: "2026-10-16", node: "第1次更新",
-          qty0: "3,200", qty1: "2,850", qty2: dash,
-          sales0: "186,000", sales1: "162,400", sales2: dash,
-          qtyTotal: "6,050", salesTotal: "348,400",
-          profit0: "28,600", profit1: "22,100", profit2: dash, profitTotal: "50,700",
-          profitRate: "14.55%",
-          rq0: "86", rq1: "72", rq2: dash,
-          ra0: "9,800", ra1: "7,600", ra2: dash,
-          rqTotal: "158", refundTotal: "17,400",
-          refundRate: "4.99%",
-          profitNet: "+33,300", profitNetCls: "pos"
+          date: "2026-10-16", node: "快照·刷当月（当月更新1）",
+          qty0: "3,260", qty1: dash, qty2: dash,
+          sales0: "188,200", sales1: dash, sales2: dash,
+          qtyTotal: "3,260", salesTotal: "188,200",
+          profit0: "28,900", profit1: dash, profit2: dash, profitTotal: "28,900",
+          profitRate: "15.36%",
+          rq0: "88", rq1: dash, rq2: dash,
+          ra0: "10,050", ra1: dash, ra2: dash,
+          rqTotal: "88", refundTotal: "10,050",
+          refundRate: "5.34%",
+          profitNet: "+18,850", profitNetCls: "pos"
         }),
         histRow({
-          date: "2026-11-01", node: "第2次更新",
-          qty0: "3,200", qty1: "2,850", qty2: "2,050",
-          sales0: "186,000", sales1: "162,400", sales2: "116,000",
-          qtyTotal: "8,100", salesTotal: "464,400",
-          profit0: "28,600", profit1: "22,100", profit2: "12,000", profitTotal: "62,700",
-          profitRate: "13.50%",
-          rq0: "86", rq1: "72", rq2: "38",
-          ra0: "9,800", ra1: "7,600", ra2: "3,500",
-          rqTotal: "196", refundTotal: "20,900",
-          refundRate: "4.50%",
-          profitNet: "+41,800", profitNetCls: "pos"
+          date: "2026-11-01", node: "快照·刷当月+首次写次月",
+          qty0: "3,280", qty1: "2,850", qty2: dash,
+          sales0: "189,100", sales1: "162,400", sales2: dash,
+          qtyTotal: "6,130", salesTotal: "351,500",
+          profit0: "29,100", profit1: "22,100", profit2: dash, profitTotal: "51,200",
+          profitRate: "14.57%",
+          rq0: "90", rq1: "72", rq2: dash,
+          ra0: "10,200", ra1: "7,600", ra2: dash,
+          rqTotal: "162", refundTotal: "17,800",
+          refundRate: "5.06%",
+          profitNet: "+33,400", profitNetCls: "pos"
         }),
         histRow({
-          date: "2026-11-16", node: "第3次更新",
-          qty0: "3,200", qty1: "2,850", qty2: "2,080",
-          sales0: "186,000", sales1: "162,400", sales2: "117,500",
-          qtyTotal: "8,130", salesTotal: "465,900",
-          profit0: "28,600", profit1: "22,100", profit2: "12,200", profitTotal: "62,900",
-          profitRate: "13.50%",
-          rq0: "86", rq1: "72", rq2: "40",
-          ra0: "9,800", ra1: "7,600", ra2: "3,700",
-          rqTotal: "198", refundTotal: "21,100",
-          refundRate: "4.53%",
-          profitNet: "+41,800", profitNetCls: "pos"
+          date: "2026-11-16", node: "快照·刷当月、次月",
+          qty0: "3,300", qty1: "2,920", qty2: dash,
+          sales0: "190,000", sales1: "165,800", sales2: dash,
+          qtyTotal: "6,220", salesTotal: "355,800",
+          profit0: "29,400", profit1: "22,600", profit2: dash, profitTotal: "52,000",
+          profitRate: "14.61%",
+          rq0: "91", rq1: "74", rq2: dash,
+          ra0: "10,350", ra1: "7,850", ra2: dash,
+          rqTotal: "165", refundTotal: "18,200",
+          refundRate: "5.12%",
+          profitNet: "+33,800", profitNetCls: "pos"
         }),
         histRow({
-          date: "2026-12-01", node: "第4次更新（销量/销售额/利润最后一次）",
-          ...salesFreeze,
-          rq0: "86", rq1: "72", rq2: "41",
-          ra0: "9,800", ra1: "7,600", ra2: "3,840",
-          rqTotal: "199", refundTotal: "21,240",
-          refundRate: "4.55%",
-          profitNet: "+41,960", profitNetCls: "pos"
+          date: "2026-12-01", node: "快照·刷当月、次月+首次写第三月",
+          qty0: "3,310", qty1: "2,950", qty2: "2,050",
+          sales0: "190,600", sales1: "167,200", sales2: "116,000",
+          qtyTotal: "8,310", salesTotal: "473,800",
+          profit0: "29,500", profit1: "22,800", profit2: "12,000", profitTotal: "64,300",
+          profitRate: "13.57%",
+          rq0: "92", rq1: "75", rq2: "38",
+          ra0: "10,500", ra1: "8,000", ra2: "3,500",
+          rqTotal: "205", refundTotal: "22,000",
+          refundRate: "4.64%",
+          profitNet: "+42,300", profitNetCls: "pos"
         }),
         histRow({
-          date: "2026-12-16", node: "第5次更新（仅退款）",
-          ...salesFreeze,
-          rq0: "90", rq1: "78", rq2: "45",
-          ra0: "10,200", ra1: "8,100", ra2: "4,200",
-          rqTotal: "213", refundTotal: "22,500",
-          refundRate: "4.82%",
-          profitNet: "+41,700", profitNetCls: "pos"
-        }, { freezeSales: true }),
+          date: "2026-12-16", node: "快照·刷三列",
+          qty0: "3,320", qty1: "2,980", qty2: "2,100",
+          sales0: "191,200", sales1: "168,500", sales2: "118,800",
+          qtyTotal: "8,400", salesTotal: "478,500",
+          profit0: "29,600", profit1: "23,000", profit2: "12,400", profitTotal: "65,000",
+          profitRate: "13.58%",
+          rq0: "93", rq1: "76", rq2: "41",
+          ra0: "10,600", ra1: "8,150", ra2: "3,840",
+          rqTotal: "210", refundTotal: "22,590",
+          refundRate: "4.72%",
+          profitNet: "+42,410", profitNetCls: "pos"
+        }),
         histRow({
-          date: "2027-01-01", node: "第6次更新（仅退款/当前）",
-          ...salesFreeze,
-          rq0: "92", rq1: "80", rq2: "48",
-          ra0: "10,500", ra1: "8,400", ra2: "4,500",
-          rqTotal: "220", refundTotal: "23,400",
-          refundRate: "5.01%",
-          profitNet: "+39,800", profitNetCls: "pos"
-        }, { bold: true, current: true, freezeSales: true })
+          date: "2027-01-01", node: "快照·当月列满6（当前最新）",
+          qty0: "3,330", qty1: "3,010", qty2: "2,150",
+          sales0: "191,800", sales1: "169,800", sales2: "120,500",
+          qtyTotal: "8,490", salesTotal: "482,100",
+          profit0: "29,700", profit1: "23,200", profit2: "12,700", profitTotal: "65,600",
+          profitRate: "13.61%",
+          rq0: "94", rq1: "78", rq2: "44",
+          ra0: "10,750", ra1: "8,300", ra2: "4,100",
+          rqTotal: "216", refundTotal: "23,150",
+          refundRate: "4.80%",
+          profitNet: "+42,450", profitNetCls: "pos"
+        }, { bold: true, current: true })
       ].join("");
 
       document.getElementById("detailBody").innerHTML = `
@@ -1491,7 +1606,7 @@
                 <td class="num">${fmtMoney(r.refundAmt[0])}</td>
               </tr>
               <tr>
-                <td>次月</td>
+                <td>次月${(r.hotNext && r.qty[1] != null) ? ' <span class="hot-mark" title="高销量"><svg class="hot-ico" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 1.2l1.9 3.9 4.3.6-3.1 3 0.7 4.3L8 11.2l-3.8 2 0.7-4.3-3.1-3 4.3-.6L8 1.2z"/></svg></span>' : ''}</td>
                 <td class="num">${fmt(r.qty[1])}</td>
                 <td class="num">${fmtMoney(r.sales[1])}</td>
                 <td class="num">${fmtMoney(r.profit[1])}</td>
@@ -1499,7 +1614,7 @@
                 <td class="num">${fmtMoney(r.refundAmt[1])}</td>
               </tr>
               <tr>
-                <td>第三月</td>
+                <td>第三月${(r.hotThird && r.qty[2] != null) ? ' <span class="hot-mark" title="高销量"><svg class="hot-ico" viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M8 1.2l1.9 3.9 4.3.6-3.1 3 0.7 4.3L8 11.2l-3.8 2 0.7-4.3-3.1-3 4.3-.6L8 1.2z"/></svg></span>' : ''}</td>
                 <td class="num">${fmt(r.qty[2])}</td>
                 <td class="num">${fmtMoney(r.sales[2])}</td>
                 <td class="num">${fmtMoney(r.profit[2])}</td>
@@ -1519,20 +1634,20 @@
           <p style="margin-top:10px;color:var(--text-3);font-size:12px;">总利润率 = ${profitRate}；总退款率 = ${refundRate}。</p>
         </div>
         <div class="detail-section">
-          <div class="sec-title">历史快照（${r.platform} · 以10/1添加为例）</div>
+          <div class="sec-title">历史快照（${r.platform} · 高销量月快照表按日，M=9 为例）</div>
           <div class="rule-box">
-            <div><b>添加：</b>每月1号写入，不计入更新次数。</div>
-            <div><b>更新：</b>添加之后每半月更新，共 <b>6 次</b>（不含第一次添加）。</div>
-            <div><b>销量 / 销售额 / 利润：</b>仅前 <b>4 次更新</b>会改；第5、6次沿用第4次数值（灰色）。</div>
-            <div><b>退款数量 / 退款金额：</b>6 次更新每次都改。</div>
-            <div><b>同一天计数：</b>同一自然日无论跑多少遍，只算 1 次更新，只保留当日最后一次快照。</div>
+            <div><b>快照表：</b>按<strong>快照日期</strong>一行，横放当月 / 次月 / 第三月；同日重跑覆盖该日一行。</div>
+            <div><b>按列写入：</b>当月入池即可写；次月从 (M+2) 月1号起；第三月从 (M+3) 月1号起。未到点列显示 —。</div>
+            <div><b>更新次数：</b>每列首次写出记 0，之后每次有效刷数 +1，加到 <b>6</b> 为止；三列都满 6 → 批次完结。</div>
+            <div><b>主表：</b>取该批次快照日期最大一行回写列表最新指标；产品信息每次回写覆盖。</div>
+            <div><b>同一天：</b>同一快照日期只保留一行，重跑不重复加次数。</div>
           </div>
           <div class="hist-scroll">
             <table class="hist-table merged">
               <thead>
                 <tr>
                   <th>快照日期</th>
-                  <th>节点</th>
+                  <th>节点说明</th>
                   <th>当月数据</th>
                   <th>次月数据</th>
                   <th>第三月数据</th>
